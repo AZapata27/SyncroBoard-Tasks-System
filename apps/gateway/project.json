@@ -1,19 +1,18 @@
 {
   "name": "gateway",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../node_modules/nx/schemas/project.json",
   "sourceRoot": "apps/gateway/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/webpack:webpack",
+      "executor": "@nx/js:swc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "target": "node",
-        "compiler": "tsc",
         "outputPath": "dist/apps/gateway",
         "main": "apps/gateway/src/main.ts",
         "tsConfig": "apps/gateway/tsconfig.app.json",
-        "assets": ["apps/gateway/src/assets"]
+        "assets": ["apps/gateway/src/assets"],
+        "swcrc": ".swcrc"
       }
     },
     "serve": {

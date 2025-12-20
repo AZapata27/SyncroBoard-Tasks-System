@@ -8,7 +8,7 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 interface JwtPayload {
@@ -18,12 +18,6 @@ interface JwtPayload {
   iat?: number;
   exp?: number;
 }
-
-interface SubscriptionData {
-  ticketId?: string;
-  projectId?: string;
-}
-
 @WebSocketGateway({
   cors: {
     origin: process.env.CORS_ORIGIN || '*',

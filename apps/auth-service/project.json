@@ -5,15 +5,16 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/webpack:webpack",
+      "executor": "@nx/js:swc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "target": "node",
-        "compiler": "tsc",
         "outputPath": "dist/apps/auth-service",
         "main": "apps/auth-service/src/main.ts",
         "tsConfig": "apps/auth-service/tsconfig.app.json",
-        "assets": ["apps/auth-service/src/assets"]
+        "assets": ["apps/auth-service/src/assets"],
+        "swcrc": ".swcrc",
+        "skipTypeCheck": true,
+        "generatePackageJson": true
       }
     },
     "serve": {
