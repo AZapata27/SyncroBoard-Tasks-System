@@ -1,0 +1,35 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@app/common": ["libs/common/src/index.ts"],
+      "@app/common/*": ["libs/common/src/*"],
+      "@app/contracts": ["libs/contracts/src/index.ts"],
+      "@app/contracts/*": ["libs/contracts/src/*"],
+      "@gateway/modules/*": ["apps/gateway/src/modules/*"],
+      "@gateway/guards/*": ["apps/gateway/src/guards/*"],
+      "@gateway/config/*": ["apps/gateway/src/config/*"],
+      "@auth/modules/*": ["apps/auth-service/src/modules/*"],
+      "@auth/config/*": ["apps/auth-service/src/config/*"],
+      "@ticket/modules/*": ["apps/ticket-service/src/modules/*"],
+      "@ticket/config/*": ["apps/ticket-service/src/config/*"],
+      "@assignment/modules/*": ["apps/assignment-service/src/modules/*"],
+      "@assignment/config/*": ["apps/assignment-service/src/config/*"],
+      "@notification/modules/*": ["apps/notification-service/src/modules/*"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
