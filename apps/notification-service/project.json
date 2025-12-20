@@ -5,15 +5,14 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/webpack:webpack",
+      "executor": "@nx/js:swc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "target": "node",
-        "compiler": "tsc",
         "outputPath": "dist/apps/notification-service",
         "main": "apps/notification-service/src/main.ts",
         "tsConfig": "apps/notification-service/tsconfig.app.json",
-        "assets": ["apps/notification-service/src/assets"]
+        "assets": ["apps/notification-service/src/assets"],
+        "swcrc": ".swcrc"
       }
     },
     "serve": {
