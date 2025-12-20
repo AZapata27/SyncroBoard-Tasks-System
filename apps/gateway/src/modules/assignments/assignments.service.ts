@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -7,6 +7,7 @@ import {
   AssignmentResponseDto,
   GetAssignmentsDto,
 } from '@app/contracts';
+import { handleAxiosError } from '../../utils/axios-error.handler';
 
 @Injectable()
 export class AssignmentsService {
@@ -31,11 +32,8 @@ export class AssignmentsService {
         ),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Assignment service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Assignment service unavailable');
     }
   }
 
@@ -54,11 +52,8 @@ export class AssignmentsService {
         ),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Assignment service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Assignment service unavailable');
     }
   }
 
@@ -72,11 +67,8 @@ export class AssignmentsService {
         }),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Assignment service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Assignment service unavailable');
     }
   }
 
@@ -86,11 +78,8 @@ export class AssignmentsService {
         this.httpService.get(`${this.assignmentServiceUrl}/api/v1/assignments/ticket/${ticketId}`),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Assignment service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Assignment service unavailable');
     }
   }
 
@@ -100,11 +89,8 @@ export class AssignmentsService {
         this.httpService.get(`${this.assignmentServiceUrl}/api/v1/assignments/user/${userId}`),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Assignment service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Assignment service unavailable');
     }
   }
 }

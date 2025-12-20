@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
-import { OutboxEvent, OutboxStatus } from './outbox.entity';
+import { Repository } from 'typeorm';
+import { OutboxEvent, OutboxStatus, EventPayload } from './outbox.entity';
 import { KafkaService } from '../kafka';
 
 export interface CreateOutboxEventParams {
   aggregateId: string;
   aggregateType: string;
   eventType: string;
-  payload: any;
+  payload: EventPayload;
   kafkaTopic: string;
 }
 
@@ -20,7 +20,6 @@ export class OutboxService {
   constructor(
     @InjectRepository(OutboxEvent)
     private readonly outboxRepository: Repository<OutboxEvent>,
-    private readonly dataSource: DataSource,
     private readonly kafkaService: KafkaService,
   ) {}
 

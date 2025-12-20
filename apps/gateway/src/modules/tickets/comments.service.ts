@@ -1,7 +1,8 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { CreateCommentDto, CommentResponseDto } from '@app/contracts';
+import { handleAxiosError } from '../../utils/axios-error.handler';
 
 @Injectable()
 export class CommentsService {
@@ -19,11 +20,8 @@ export class CommentsService {
         }),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Ticket service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Ticket service unavailable');
     }
   }
 
@@ -33,11 +31,8 @@ export class CommentsService {
         this.httpService.get(`${this.ticketServiceUrl}/api/v1/comments/ticket/${ticketId}`),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Ticket service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Ticket service unavailable');
     }
   }
 
@@ -49,11 +44,8 @@ export class CommentsService {
         }),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Ticket service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Ticket service unavailable');
     }
   }
 }

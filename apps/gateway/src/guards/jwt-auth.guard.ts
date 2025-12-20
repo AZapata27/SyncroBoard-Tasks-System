@@ -22,7 +22,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest(err: any, user: any, info: any) {
+  handleRequest<TUser = Express.User>(err: Error | null, user: TUser, info: Error | undefined): TUser {
     if (err || !user) {
       throw err || new UnauthorizedException('Invalid or expired token');
     }

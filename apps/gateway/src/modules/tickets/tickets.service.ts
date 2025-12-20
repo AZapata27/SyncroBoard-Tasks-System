@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -7,6 +7,7 @@ import {
   TicketFilterDto,
   TicketResponseDto,
 } from '@app/contracts';
+import { handleAxiosError } from '../../utils/axios-error.handler';
 
 @Injectable()
 export class TicketsService {
@@ -24,11 +25,8 @@ export class TicketsService {
         }),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Ticket service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Ticket service unavailable');
     }
   }
 
@@ -40,11 +38,8 @@ export class TicketsService {
         }),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Ticket service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Ticket service unavailable');
     }
   }
 
@@ -54,11 +49,8 @@ export class TicketsService {
         this.httpService.get(`${this.ticketServiceUrl}/api/v1/tickets/${id}`),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Ticket service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Ticket service unavailable');
     }
   }
 
@@ -74,11 +66,8 @@ export class TicketsService {
         }),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Ticket service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Ticket service unavailable');
     }
   }
 
@@ -88,11 +77,8 @@ export class TicketsService {
         this.httpService.delete(`${this.ticketServiceUrl}/api/v1/tickets/${id}`),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Ticket service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Ticket service unavailable');
     }
   }
 }

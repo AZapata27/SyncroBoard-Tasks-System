@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '@auth/modules/users/users.service';
 import { OutboxService } from '@app/common';
@@ -7,10 +7,13 @@ import {
   LoginDto,
   AuthResponseDto,
   RefreshTokenDto,
+  UserResponseDto,
+  UserRole,
   KAFKA_TOPICS,
   EVENT_TYPES,
   UserRegisteredEvent,
 } from '@app/contracts';
+import { User } from '@auth/modules/users/user.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -28,7 +31,7 @@ export class AuthService {
       password: registerDto.password,
       firstName: registerDto.firstName,
       lastName: registerDto.lastName,
-      role: registerDto.role || 'DEVELOPER',
+      role: (registerDto.role as UserRole) || UserRole.DEVELOPER,
     });
 
     // Create outbox event for user registration
@@ -108,7 +111,7 @@ export class AuthService {
     await this.usersService.updateRefreshToken(userId, null);
   }
 
-  private async generateAuthResponse(user: any): Promise<AuthResponseDto> {
+  private async generateAuthResponse(user: User): Promise<AuthResponseDto> {
     const payload = {
       userId: user.id,
       email: user.email,
@@ -139,7 +142,18 @@ export class AuthService {
     };
   }
 
-  async validateUser(userId: string): Promise<any> {
-    return this.usersService.findById(userId);
+  async validateUser(userId: string): Promise<UserResponseDto> {
+    const user = await this.usersService.findById(userId);
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      status: user.status,
+      lastLogin: user.lastLogin,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 }

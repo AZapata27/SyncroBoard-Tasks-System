@@ -11,6 +11,19 @@ import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
+interface JwtPayload {
+  userId: string;
+  email: string;
+  role: string;
+  iat?: number;
+  exp?: number;
+}
+
+interface SubscriptionData {
+  ticketId?: string;
+  projectId?: string;
+}
+
 @WebSocketGateway({
   cors: {
     origin: process.env.CORS_ORIGIN || '*',
@@ -27,7 +40,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
 
   constructor(private readonly jwtService: JwtService) {}
 
-  async handleConnection(client: Socket) {
+  async handleConnection(client: Socket): Promise<void> {
     try {
       // Extract token from handshake
       const token = client.handshake.auth.token || client.handshake.headers.authorization?.split(' ')[1];
@@ -39,7 +52,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       }
 
       // Verify JWT
-      const payload = this.jwtService.verify(token);
+      const payload = this.jwtService.verify<JwtPayload>(token);
       const userId = payload.userId;
 
       // Store client connection
@@ -58,7 +71,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     }
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: Socket): void {
     const userId = this.connectedClients.get(client.id);
     this.connectedClients.delete(client.id);
     this.logger.log(`Client ${client.id} (user: ${userId}) disconnected`);
@@ -105,22 +118,22 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
   }
 
   // Methods to emit events from services
-  notifyUser(userId: string, event: string, data: any) {
+  notifyUser(userId: string, event: string, data: Record<string, unknown>): void {
     this.server.to(`user:${userId}`).emit(event, data);
     this.logger.debug(`Emitted ${event} to user ${userId}`);
   }
 
-  notifyTicket(ticketId: string, event: string, data: any) {
+  notifyTicket(ticketId: string, event: string, data: Record<string, unknown>): void {
     this.server.to(`ticket:${ticketId}`).emit(event, data);
     this.logger.debug(`Emitted ${event} to ticket ${ticketId}`);
   }
 
-  notifyProject(projectId: string, event: string, data: any) {
+  notifyProject(projectId: string, event: string, data: Record<string, unknown>): void {
     this.server.to(`project:${projectId}`).emit(event, data);
     this.logger.debug(`Emitted ${event} to project ${projectId}`);
   }
 
-  broadcast(event: string, data: any) {
+  broadcast(event: string, data: Record<string, unknown>): void {
     this.server.emit(event, data);
     this.logger.debug(`Broadcasted ${event} to all clients`);
   }

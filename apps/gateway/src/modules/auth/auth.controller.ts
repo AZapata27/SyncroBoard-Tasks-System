@@ -5,6 +5,7 @@ import {
   LoginDto,
   RefreshTokenDto,
   AuthResponseDto,
+  UserResponseDto,
 } from '@app/contracts';
 import { Public, CurrentUser } from '@app/common';
 import { JwtAuthGuard } from '@gateway/guards/jwt-auth.guard';
@@ -42,7 +43,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  async getProfile(@CurrentUser('userId') userId: string): Promise<any> {
+  async getProfile(@CurrentUser('userId') userId: string): Promise<UserResponseDto> {
     return this.authService.getProfile(userId);
   }
 }

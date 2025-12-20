@@ -5,6 +5,7 @@ import {
   LoginDto,
   AuthResponseDto,
   RefreshTokenDto,
+  UserResponseDto,
 } from '@app/contracts';
 import { CurrentUser, JwtAuthGuard, Public } from '@app/common';
 
@@ -39,7 +40,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  async getProfile(@CurrentUser('userId') userId: string): Promise<any> {
+  async getProfile(@CurrentUser('userId') userId: string): Promise<UserResponseDto> {
     return this.authService.validateUser(userId);
   }
 }
