@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -6,7 +6,9 @@ import {
   LoginDto,
   RefreshTokenDto,
   AuthResponseDto,
+  UserResponseDto,
 } from '@app/contracts';
+import { handleAxiosError } from '../../utils/axios-error.handler';
 
 @Injectable()
 export class AuthService {
@@ -22,11 +24,8 @@ export class AuthService {
         this.httpService.post(`${this.authServiceUrl}/api/v1/auth/register`, registerDto),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Auth service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Auth service unavailable');
     }
   }
 
@@ -36,11 +35,8 @@ export class AuthService {
         this.httpService.post(`${this.authServiceUrl}/api/v1/auth/login`, loginDto),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Auth service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Auth service unavailable');
     }
   }
 
@@ -50,11 +46,8 @@ export class AuthService {
         this.httpService.post(`${this.authServiceUrl}/api/v1/auth/refresh`, refreshTokenDto),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Auth service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Auth service unavailable');
     }
   }
 
@@ -64,15 +57,12 @@ export class AuthService {
         this.httpService.post(`${this.authServiceUrl}/api/v1/auth/logout`, { userId }),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Auth service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Auth service unavailable');
     }
   }
 
-  async getProfile(userId: string): Promise<any> {
+  async getProfile(userId: string): Promise<UserResponseDto> {
     try {
       const response = await firstValueFrom(
         this.httpService.get(`${this.authServiceUrl}/api/v1/auth/me`, {
@@ -80,11 +70,8 @@ export class AuthService {
         }),
       );
       return response.data;
-    } catch (error: any) {
-      throw new HttpException(
-        error.response?.data || 'Auth service unavailable',
-        error.response?.status || 500,
-      );
+    } catch (error) {
+      handleAxiosError(error, 'Auth service unavailable');
     }
   }
 }

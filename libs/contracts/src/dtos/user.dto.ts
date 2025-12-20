@@ -23,6 +23,7 @@ export class UserResponseDto {
   lastName: string;
   role: UserRole;
   status: UserStatus;
+  lastLogin: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

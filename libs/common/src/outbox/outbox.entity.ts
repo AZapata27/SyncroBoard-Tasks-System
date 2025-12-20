@@ -8,6 +8,8 @@ export enum OutboxStatus {
   FAILED = 'FAILED',
 }
 
+export type EventPayload = Record<string, unknown>;
+
 @Entity('outbox_events')
 @Index(['status', 'createdAt'])
 export class OutboxEvent extends BaseEntity {
@@ -21,7 +23,7 @@ export class OutboxEvent extends BaseEntity {
   eventType: string;
 
   @Column({ type: 'jsonb' })
-  payload: any;
+  payload: EventPayload;
 
   @Column({ name: 'kafka_topic' })
   kafkaTopic: string;
