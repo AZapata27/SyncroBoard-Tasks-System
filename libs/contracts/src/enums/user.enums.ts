@@ -1,0 +1,12 @@
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  PROJECT_MANAGER = 'PROJECT_MANAGER',
+  DEVELOPER = 'DEVELOPER',
+  VIEWER = 'VIEWER',
+}
+
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
+}
