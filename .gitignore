@@ -4,6 +4,10 @@
 /build
 /tmp
 
+# Nx
+.nx/cache
+.nx/workspace-data
+
 # Logs
 logs
 *.log
@@ -13,14 +17,54 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Coverage
+coverage
+*.lcov
+.nyc_output
+
 # dotenv environment variable files
 .env
+.env.local
 .env.development
+.env.development.local
 .env.test
+.env.test.local
 .env.production
+.env.production.local
 
 # temp directory
 .temp
 .tmp
 
+# IDEs
 .idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Build outputs
+dist/
+build/
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Docker
+docker-compose.override.yml
+
+# Testing
+.testcontainers
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
