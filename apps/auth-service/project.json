@@ -17,6 +17,14 @@
         "generatePackageJson": true
       }
     },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^default"],
+      "options": {
+        "command": "tsc -p apps/auth-service/tsconfig.app.json --noEmit"
+      }
+    },
     "serve": {
       "executor": "@nx/js:node",
       "options": {

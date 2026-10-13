@@ -30,9 +30,9 @@ export class TicketResponseDto {
   priority: TicketPriority;
   status: TicketStatus;
   reporterId: string;
-  estimatedHours?: number;
-  sprintId?: string;
-  parentTicketId?: string;
+  estimatedHours?: number | null;
+  sprintId?: string | null;
+  parentTicketId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
