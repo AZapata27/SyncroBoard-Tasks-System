@@ -31,7 +31,7 @@ export class User extends BaseEntity {
   })
   status: UserStatus;
 
-  @Column({ name: 'refresh_token', nullable: true })
+  @Column({ name: 'refresh_token', type: 'varchar', nullable: true })
   refreshToken: string | null;
 
   @Column({ name: 'last_login', nullable: true, type: 'timestamp' })
