@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtSignOptions } from '@nestjs/jwt';
 import { NotificationsGateway } from './notifications.gateway';
 
 @Module({
@@ -7,7 +7,7 @@ import { NotificationsGateway } from './notifications.gateway';
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key',
       signOptions: {
-        expiresIn: process.env.JWT_EXPIRES_IN || '1h',
+        expiresIn: (process.env.JWT_EXPIRES_IN || '1h') as JwtSignOptions['expiresIn'],
       },
     }),
   ],

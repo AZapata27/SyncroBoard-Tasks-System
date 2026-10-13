@@ -67,3 +67,10 @@ docker-compose.override.yml
 # Package managers
 yarn.lock
 pnpm-lock.yaml
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+
+.claude/worktrees
+.nx/polygraph
+.nx/self-healing
+.nx/migrate-runs

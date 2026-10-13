@@ -117,19 +117,19 @@ Notas sobre el estado actual del código:
 
 ## 🚀 Stack Tecnológico
 
-- **Backend**: Node.js 20 LTS, NestJS 10.x, TypeScript 5.x
+- **Backend**: Node.js 22 LTS, NestJS 11.x, TypeScript 5.9
 - **Database**: PostgreSQL 15.x con TypeORM 0.3.x
 - **Message Broker**: Apache Kafka 3.x
 - **Cache**: Redis 7.x con ioredis
-- **Monorepo**: Nx 18.x
+- **Monorepo**: Nx 23.x (ESLint 9 con flat config)
 - **Authentication**: JWT con Passport
 - **Validation**: class-validator, class-transformer
-- **Testing**: Jest 29.x
+- **Testing**: Jest 30.x
 - **Patterns**: Transactional Outbox Pattern, Database per Service, API Gateway
 
 ## 📋 Pre-requisitos
 
-- Node.js 20.x o superior
+- Node.js 22.12 o superior (ver `.nvmrc`)
 - Docker y Docker Compose
 - npm o yarn
 

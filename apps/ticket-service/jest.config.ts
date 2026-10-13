@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'ticket-service',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
