@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { CommentsService } from './comments.service';
-import { CurrentUser, JwtAuthGuard } from '@app/common';
+import { CurrentUser, JwtAuthGuard, JwtPayload } from '@app/common';
 import { CreateCommentDto, CommentResponseDto } from '@app/contracts';
 
 @Controller('comments')
@@ -24,9 +24,9 @@ export class CommentsController {
   @Delete(':id')
   async delete(
     @Param('id') id: string,
-    @CurrentUser('userId') userId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<{ message: string }> {
-    await this.commentsService.delete(id, userId);
+    await this.commentsService.delete(id, { userId: user?.userId, role: user?.role });
     return { message: 'Comment deleted successfully' };
   }
 }

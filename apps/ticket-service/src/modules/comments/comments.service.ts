@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from './comment.entity';
@@ -9,7 +9,14 @@ import {
   KAFKA_TOPICS,
   EVENT_TYPES,
   TicketCommentAddedEvent,
+  UserRole,
 } from '@app/contracts';
+
+/** Who is asking for the operation (taken from the authenticated request). */
+export interface CommentRequester {
+  userId: string;
+  role?: string;
+}
 
 @Injectable()
 export class CommentsService {
@@ -52,13 +59,22 @@ export class CommentsService {
       where: { ticketId },
       order: { createdAt: 'ASC' },
     });
-    return comments.map(comment => this.mapToResponseDto(comment));
+    return comments.map((comment) => this.mapToResponseDto(comment));
   }
 
-  async delete(id: string, _userId: string): Promise<void> {
+  /**
+   * Only the author of a comment, or an ADMIN, can delete it (403 otherwise).
+   */
+  async delete(id: string, requester: CommentRequester): Promise<void> {
     const comment = await this.commentRepository.findOne({ where: { id } });
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
+    }
+
+    const isAuthor = !!requester.userId && comment.authorId === requester.userId;
+    const isAdmin = requester.role === UserRole.ADMIN;
+    if (!isAuthor && !isAdmin) {
+      throw new ForbiddenException('Only the author of the comment or an admin can delete it');
     }
 
     await this.commentRepository.remove(comment);
