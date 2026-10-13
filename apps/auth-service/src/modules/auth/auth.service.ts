@@ -102,7 +102,7 @@ export class AuthService {
       }
 
       return this.generateAuthResponse(user);
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }
