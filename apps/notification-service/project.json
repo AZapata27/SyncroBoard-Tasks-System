@@ -12,7 +12,16 @@
         "main": "apps/notification-service/src/main.ts",
         "tsConfig": "apps/notification-service/tsconfig.app.json",
         "assets": ["apps/notification-service/src/assets"],
-        "swcrc": ".swcrc"
+        "swcrc": ".swcrc",
+        "skipTypeCheck": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^default"],
+      "options": {
+        "command": "tsc -p apps/notification-service/tsconfig.app.json --noEmit"
       }
     },
     "serve": {

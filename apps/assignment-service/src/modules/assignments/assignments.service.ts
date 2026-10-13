@@ -12,7 +12,6 @@ import {
   EVENT_TYPES,
   TicketAssignedEvent,
   TicketUnassignedEvent,
-  AssignmentUpdatedEvent,
 } from '@app/contracts';
 
 @Injectable()

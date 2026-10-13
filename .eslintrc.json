@@ -10,7 +10,13 @@
           "error",
           {
             "enforceBuildableLibDependency": true,
-            "allow": [],
+            "allow": [
+              "@gateway/**",
+              "@auth/**",
+              "@ticket/**",
+              "@assignment/**",
+              "@notification/**"
+            ],
             "depConstraints": [
               {
                 "sourceTag": "*",

@@ -1,5 +1,7 @@
 # SyncroBoard Tasks System
 
+[![CI](https://github.com/AZapata27/SyncroBoard-Tasks-System/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/AZapata27/SyncroBoard-Tasks-System/actions/workflows/ci.yml)
+
 Sistema de gestión de tareas estilo JIRA construido con arquitectura de microservicios, NestJS, Nx Monorepo y comunicación event-driven con Kafka.
 
 ## 🏗️ Arquitectura
@@ -26,6 +28,92 @@ Sistema de gestión de tareas estilo JIRA construido con arquitectura de microse
 
 - **@app/contracts**: Eventos, DTOs y Enums compartidos
 - **@app/common**: Módulos reutilizables (Kafka, Redis, Guards, Decorators, Interceptors, Outbox)
+
+## Arquitectura (diagrama)
+
+Vista basada en el código actual: el gateway valida el JWT y hace de proxy HTTP hacia cada servicio; cada servicio
+escribe en su propia base PostgreSQL y registra sus eventos de dominio en una tabla `outbox_events` (Transactional
+Outbox), desde donde `OutboxService` los publica en Kafka; `notification-service` los consume.
+
+```mermaid
+flowchart LR
+    client([Cliente HTTP / WebSocket])
+
+    gateway["gateway :3000<br/>JwtAuthGuard global (Passport JWT)<br/>WebSocket /notifications"]
+
+    auth["auth-service :3001<br/>registro, login, JWT"]
+    ticket["ticket-service :3002<br/>tickets, proyectos, comentarios"]
+    assign["assignment-service :3003<br/>asignaciones"]
+
+    authdb[("syncro_auth_db<br/>users + outbox_events")]
+    ticketdb[("syncro_ticket_db<br/>tickets, comments + outbox_events")]
+    assigndb[("syncro_assign_db<br/>assignments + outbox_events")]
+
+    subgraph kafka [Kafka]
+        userTopic[[user.events]]
+        ticketTopic[[ticket.events]]
+        assignTopic[[assignment.events]]
+        notifTopic[[notification.events]]
+    end
+
+    notif["notification-service<br/>consumidor Kafka (@EventPattern)"]
+    redis[("Redis")]
+
+    client -->|"Authorization: Bearer JWT"| gateway
+    gateway -->|"HTTP /api/v1/auth/*"| auth
+    gateway -->|"HTTP /api/v1/tickets, /comments"| ticket
+    gateway -->|"HTTP /api/v1/assignments"| assign
+
+    auth --> authdb
+    ticket --> ticketdb
+    assign --> assigndb
+
+    authdb -.->|"OutboxService"| userTopic
+    ticketdb -.->|"OutboxService"| ticketTopic
+    assigndb -.->|"OutboxService"| assignTopic
+
+    userTopic --> notif
+    ticketTopic --> notif
+    assignTopic --> notif
+    notifTopic --> notif
+
+    gateway & auth & ticket & assign & notif -.->|"RedisModule"| redis
+```
+
+Flujo "asignar ticket → evento → notificación":
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Cliente
+    participant G as gateway
+    participant A as assignment-service
+    participant DB as syncro_assign_db
+    participant K as Kafka (assignment.events)
+    participant N as notification-service
+
+    U->>G: POST /api/v1/assignments/assign (Bearer JWT)
+    G->>G: JwtAuthGuard valida firma y expiración
+    G->>A: POST /api/v1/assignments/assign (x-user-id)
+    A->>DB: INSERT assignments
+    A->>DB: INSERT outbox_events (ticket.assigned, PENDING)
+    A-->>G: 201 AssignmentResponseDto
+    G-->>U: 201
+    Note over DB,K: OutboxService.processPendingEvents()
+    DB->>K: emit ticket.assigned → estado SENT
+    K->>N: handleAssignmentEvents(ticket.assigned)
+```
+
+Notas sobre el estado actual del código:
+
+- **Tópicos Kafka** (`KAFKA_TOPICS` en `@app/contracts`): `user.events`, `ticket.events`, `assignment.events` y
+  `notification.events` (este último sólo tiene consumidor; ningún servicio publica en él todavía).
+- **Relay del outbox:** `OutboxService.processPendingEvents()` publica los eventos `PENDING` en Kafka, pero todavía
+  no está programado (no hay `@Cron`/`@Interval` que lo invoque), así que hoy los eventos quedan en `outbox_events`.
+- **Redis:** `RedisModule` está registrado en todos los servicios (prefijos `gateway:`, `auth:`, `ticket:`,
+  `assignment:`, `notification:`), pero por ahora sólo abre la conexión; ningún flujo lee ni escribe en él.
+- **Notificaciones:** los handlers de `notification-service` registran el evento recibido; el envío real (email,
+  WebSocket del gateway) está pendiente.
 
 ## 🚀 Stack Tecnológico
 

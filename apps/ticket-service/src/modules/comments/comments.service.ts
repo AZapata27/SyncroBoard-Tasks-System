@@ -55,7 +55,7 @@ export class CommentsService {
     return comments.map(comment => this.mapToResponseDto(comment));
   }
 
-  async delete(id: string, userId: string): Promise<void> {
+  async delete(id: string, _userId: string): Promise<void> {
     const comment = await this.commentRepository.findOne({ where: { id } });
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
