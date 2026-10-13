@@ -12,7 +12,16 @@
         "main": "apps/assignment-service/src/main.ts",
         "tsConfig": "apps/assignment-service/tsconfig.app.json",
         "assets": ["apps/assignment-service/src/assets"],
-        "swcrc": ".swcrc"
+        "swcrc": ".swcrc",
+        "skipTypeCheck": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^default"],
+      "options": {
+        "command": "tsc -p apps/assignment-service/tsconfig.app.json --noEmit"
       }
     },
     "serve": {

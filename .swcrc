@@ -23,5 +23,6 @@
     "noInterop": false
   },
   "sourceMaps": true,
-  "minify": false
+  "minify": false,
+  "exclude": ["jest\\.config\\.[jt]s$", ".*\\.spec\\.[jt]s$", ".*\\.test\\.[jt]s$"]
 }

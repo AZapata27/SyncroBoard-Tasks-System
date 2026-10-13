@@ -123,7 +123,7 @@ export class OutboxService {
   /**
    * Cleanup old processed events
    */
-  async cleanupOldEvents(daysOld: number = 7): Promise<void> {
+  async cleanupOldEvents(daysOld = 7): Promise<void> {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysOld);
 
