@@ -5,34 +5,38 @@ on:
     branches: [master]
   pull_request:
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  # Runs are self-contained: no Nx Cloud remote cache, no secrets needed.
-  NX_NO_CLOUD: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  ci:
+  build:
     name: Lint, typecheck, test & build
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    uses: AZapata27/reusable-workflows/.github/workflows/node.yml@dd1bf38000c4f44c4939abe2ce0da8e1fac11993 # v1.0.0
+    permissions:
+      contents: read
+    with:
+      node-version-file: .nvmrc
+      fetch-depth: 0 # Nx needs history for affected/base comparisons
+      run-command: npx nx run-many -t lint typecheck test build
+      nx-no-cloud: true # self-contained runs: no Nx Cloud, no secrets
+      timeout-minutes: 20
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
+  workflow-lint:
+    name: Workflow lint
+    uses: AZapata27/reusable-workflows/.github/workflows/workflow-lint.yml@dd1bf38000c4f44c4939abe2ce0da8e1fac11993 # v1.0.0
+    permissions:
+      contents: read
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint, typecheck, test and build
-        run: npx nx run-many -t lint typecheck test build
+  security:
+    name: Security
+    uses: AZapata27/reusable-workflows/.github/workflows/security.yml@dd1bf38000c4f44c4939abe2ce0da8e1fac11993 # v1.0.0
+    permissions:
+      contents: read
+      actions: read # CodeQL (required by the called workflow's permission ceiling)
+      security-events: write # CodeQL SARIF upload
+    with:
+      codeql-languages: '["javascript-typescript", "actions"]'
+      # codeql-build-mode is not set: javascript-typescript and actions always use 'none'
