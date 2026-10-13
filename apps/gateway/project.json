@@ -5,15 +5,20 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/js:swc",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/apps/gateway",
         "main": "apps/gateway/src/main.ts",
         "tsConfig": "apps/gateway/tsconfig.app.json",
         "assets": ["apps/gateway/src/assets"],
-        "swcrc": ".swcrc",
-        "skipTypeCheck": true
+        "webpackConfig": "apps/gateway/webpack.config.js",
+        "skipTypeChecking": true,
+        "optimization": false,
+        "outputHashing": "none",
+        "sourceMap": true
       }
     },
     "typecheck": {

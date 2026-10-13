@@ -5,15 +5,20 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/js:swc",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/apps/ticket-service",
         "main": "apps/ticket-service/src/main.ts",
         "tsConfig": "apps/ticket-service/tsconfig.app.json",
         "assets": ["apps/ticket-service/src/assets"],
-        "swcrc": ".swcrc",
-        "skipTypeCheck": true
+        "webpackConfig": "apps/ticket-service/webpack.config.js",
+        "skipTypeChecking": true,
+        "optimization": false,
+        "outputHashing": "none",
+        "sourceMap": true
       }
     },
     "typecheck": {
