@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'assignment-service',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
