@@ -18,7 +18,6 @@ import {
   CreateTicketDto,
   UpdateTicketDto,
   TicketFilterDto,
-  CreateCommentDto,
 } from '@app/contracts';
 
 @Controller('tickets')

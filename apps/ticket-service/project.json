@@ -12,7 +12,16 @@
         "main": "apps/ticket-service/src/main.ts",
         "tsConfig": "apps/ticket-service/tsconfig.app.json",
         "assets": ["apps/ticket-service/src/assets"],
-        "swcrc": ".swcrc"
+        "swcrc": ".swcrc",
+        "skipTypeCheck": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^default"],
+      "options": {
+        "command": "tsc -p apps/ticket-service/tsconfig.app.json --noEmit"
       }
     },
     "serve": {

@@ -1,12 +1,11 @@
-import { Controller, Get, Post, Delete, Body, Query, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards, Param } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
-import { CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '@app/common';
+import { CurrentUser, JwtAuthGuard } from '@app/common';
 import {
   AssignTicketDto,
   UnassignTicketDto,
   AssignmentResponseDto,
   GetAssignmentsDto,
-  UserRole,
 } from '@app/contracts';
 
 @Controller('assignments')
