@@ -37,7 +37,10 @@ const positiveInt = (value: string | undefined, fallback: number): number => {
 
 export const outboxOptionsFromEnv = (env: NodeJS.ProcessEnv = process.env): OutboxOptions => ({
   enabled: (env['OUTBOX_ENABLED'] ?? 'true').toLowerCase() !== 'false',
-  pollIntervalMs: positiveInt(env['OUTBOX_POLL_INTERVAL_MS'], DEFAULT_OUTBOX_OPTIONS.pollIntervalMs),
+  pollIntervalMs: positiveInt(
+    env['OUTBOX_POLL_INTERVAL_MS'],
+    DEFAULT_OUTBOX_OPTIONS.pollIntervalMs,
+  ),
   batchSize: positiveInt(env['OUTBOX_BATCH_SIZE'], DEFAULT_OUTBOX_OPTIONS.batchSize),
   maxAttempts: positiveInt(env['OUTBOX_MAX_ATTEMPTS'], DEFAULT_OUTBOX_OPTIONS.maxAttempts),
   retryBaseDelayMs: positiveInt(

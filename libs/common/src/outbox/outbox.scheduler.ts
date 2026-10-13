@@ -25,7 +25,9 @@ export class OutboxScheduler implements OnApplicationBootstrap, OnApplicationShu
 
   onApplicationBootstrap(): void {
     if (!this.options.enabled) {
-      this.logger.warn('Outbox relay disabled (OUTBOX_ENABLED=false): events stay in the outbox table');
+      this.logger.warn(
+        'Outbox relay disabled (OUTBOX_ENABLED=false): events stay in the outbox table',
+      );
       return;
     }
     this.timer = setInterval(() => void this.tick(), this.options.pollIntervalMs);

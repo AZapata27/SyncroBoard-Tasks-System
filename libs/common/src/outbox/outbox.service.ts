@@ -93,9 +93,12 @@ export class OutboxService {
         {
           status: OutboxStatus.PROCESSING,
           // updated_at is written by the database, so compare against the database clock.
-          updatedAt: Raw((column) => `${column} < LOCALTIMESTAMP - make_interval(secs => :timeoutSec)`, {
-            timeoutSec: this.options.processingTimeoutMs / 1000,
-          }),
+          updatedAt: Raw(
+            (column) => `${column} < LOCALTIMESTAMP - make_interval(secs => :timeoutSec)`,
+            {
+              timeoutSec: this.options.processingTimeoutMs / 1000,
+            },
+          ),
         },
       ],
       order: { createdAt: 'ASC' },
@@ -116,10 +119,10 @@ export class OutboxService {
       .andWhere('retry_count = :retryCount', { retryCount: event.retryCount })
       .andWhere(
         new Brackets((qb) => {
-          qb.where(
-            'status = :pending AND (next_attempt_at IS NULL OR next_attempt_at <= :now)',
-            { pending: OutboxStatus.PENDING, now },
-          ).orWhere(
+          qb.where('status = :pending AND (next_attempt_at IS NULL OR next_attempt_at <= :now)', {
+            pending: OutboxStatus.PENDING,
+            now,
+          }).orWhere(
             'status = :processing AND updated_at < LOCALTIMESTAMP - make_interval(secs => :timeoutSec)',
             {
               processing: OutboxStatus.PROCESSING,
