@@ -1,6 +1,6 @@
 # SyncroBoard Tasks System
 
-[![CI](https://github.com/AZapata27/SyncroBoard-Tasks-System/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/AZapata27/SyncroBoard-Tasks-System/actions/workflows/ci.yml)
+[![CI](https://github.com/AZapata27/SyncroBoard-Tasks-System/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/AZapata27/SyncroBoard-Tasks-System/actions/workflows/ci.yml) [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/AZapata27/SyncroBoard-Tasks-System/badge)](https://scorecard.dev/viewer/?uri=github.com/AZapata27/SyncroBoard-Tasks-System)
 
 Sistema de gestión de tareas estilo JIRA construido con arquitectura de microservicios, NestJS, Nx Monorepo y comunicación event-driven con Kafka.
 
