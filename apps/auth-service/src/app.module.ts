@@ -11,7 +11,6 @@ import {
   LoggingInterceptor,
   JwtAuthGuard,
   KafkaModule,
-  RedisModule,
 } from '@app/common';
 import { Reflector } from '@nestjs/core';
 
@@ -27,13 +26,6 @@ import { Reflector } from '@nestjs/core';
       clientId: process.env.KAFKA_CLIENT_ID || 'auth-service',
       groupId: process.env.KAFKA_GROUP_ID || 'auth-service-group',
       brokers: (process.env.KAFKA_BROKERS || 'localhost:9092').split(','),
-    }),
-    RedisModule.register({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379', 10),
-      password: process.env.REDIS_PASSWORD,
-      db: parseInt(process.env.REDIS_DB || '0', 10),
-      keyPrefix: 'auth:',
     }),
     AuthModule,
     UsersModule,

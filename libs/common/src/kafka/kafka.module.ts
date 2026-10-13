@@ -13,6 +13,9 @@ export class KafkaModule {
   static register(options: KafkaModuleOptions): DynamicModule {
     return {
       module: KafkaModule,
+      // Registered once in each AppModule; global so feature modules such as OutboxModule
+      // can inject KafkaService without re-registering the Kafka client.
+      global: true,
       imports: [
         ClientsModule.register([
           {

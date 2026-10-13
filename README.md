@@ -20,7 +20,7 @@ Sistema de gestión de tareas estilo JIRA construido con arquitectura de microse
   - syncro_auth_db (Port 5432)
   - syncro_ticket_db (Port 5433)
   - syncro_assign_db (Port 5434)
-- **Redis** (Port 6379): Cache y sesiones
+- **Redis** (Port 6379): incluido en docker-compose para caché futura; hoy ningún servicio se conecta (ver notas)
 - **Kafka + Zookeeper** (Ports 9092, 2181): Message broker para eventos
 - **Kafka UI** (Port 8080): Interfaz web para monitoreo de Kafka
 
@@ -57,7 +57,6 @@ flowchart LR
     end
 
     notif["notification-service<br/>consumidor Kafka (@EventPattern)"]
-    redis[("Redis")]
 
     client -->|"Authorization: Bearer JWT"| gateway
     gateway -->|"HTTP /api/v1/auth/*"| auth
@@ -68,16 +67,14 @@ flowchart LR
     ticket --> ticketdb
     assign --> assigndb
 
-    authdb -.->|"OutboxService"| userTopic
-    ticketdb -.->|"OutboxService"| ticketTopic
-    assigndb -.->|"OutboxService"| assignTopic
+    authdb -.->|"OutboxScheduler (polling)"| userTopic
+    ticketdb -.->|"OutboxScheduler (polling)"| ticketTopic
+    assigndb -.->|"OutboxScheduler (polling)"| assignTopic
 
     userTopic --> notif
     ticketTopic --> notif
     assignTopic --> notif
     notifTopic --> notif
-
-    gateway & auth & ticket & assign & notif -.->|"RedisModule"| redis
 ```
 
 Flujo "asignar ticket → evento → notificación":
@@ -99,7 +96,7 @@ sequenceDiagram
     A->>DB: INSERT outbox_events (ticket.assigned, PENDING)
     A-->>G: 201 AssignmentResponseDto
     G-->>U: 201
-    Note over DB,K: OutboxService.processPendingEvents()
+    Note over DB,K: OutboxScheduler cada OUTBOX_POLL_INTERVAL_MS → processPendingEvents()
     DB->>K: emit ticket.assigned → estado SENT
     K->>N: handleAssignmentEvents(ticket.assigned)
 ```
@@ -108,10 +105,17 @@ Notas sobre el estado actual del código:
 
 - **Tópicos Kafka** (`KAFKA_TOPICS` en `@app/contracts`): `user.events`, `ticket.events`, `assignment.events` y
   `notification.events` (este último sólo tiene consumidor; ningún servicio publica en él todavía).
-- **Relay del outbox:** `OutboxService.processPendingEvents()` publica los eventos `PENDING` en Kafka, pero todavía
-  no está programado (no hay `@Cron`/`@Interval` que lo invoque), así que hoy los eventos quedan en `outbox_events`.
-- **Redis:** `RedisModule` está registrado en todos los servicios (prefijos `gateway:`, `auth:`, `ticket:`,
-  `assignment:`, `notification:`), pero por ahora sólo abre la conexión; ningún flujo lee ni escribe en él.
+- **Relay del outbox:** `OutboxScheduler` (en `OutboxModule`) invoca `OutboxService.processPendingEvents()` cada
+  `OUTBOX_POLL_INTERVAL_MS`. Cada evento se reclama con un `UPDATE` condicional `PENDING → PROCESSING` (una sola
+  réplica lo publica), se reintenta con backoff exponencial (`next_attempt_at`) y pasa a `FAILED` tras
+  `OUTBOX_MAX_ATTEMPTS` intentos. Un evento que quedó en `PROCESSING` más de `OUTBOX_PROCESSING_TIMEOUT_MS` (la
+  instancia murió a mitad) se vuelve a reclamar, así que la entrega es *at-least-once*: los consumidores deben ser
+  idempotentes por `eventId`. Variables (todas opcionales): `OUTBOX_ENABLED` (true), `OUTBOX_POLL_INTERVAL_MS`
+  (5000), `OUTBOX_BATCH_SIZE` (100), `OUTBOX_MAX_ATTEMPTS` (5), `OUTBOX_RETRY_BASE_DELAY_MS` (1000),
+  `OUTBOX_RETRY_MAX_DELAY_MS` (60000), `OUTBOX_PROCESSING_TIMEOUT_MS` (60000).
+- **Comentarios:** sólo el autor o un usuario `ADMIN` puede borrar un comentario (`403` en otro caso).
+- **Redis:** `RedisModule` sigue disponible en `@app/common` y Redis en `docker-compose.yml`, pero ningún servicio
+  lo registra: no había ningún flujo que leyera o escribiera en él y sólo añadía una dependencia de arranque.
 - **Notificaciones:** los handlers de `notification-service` registran el evento recibido; el envío real (email,
   WebSocket del gateway) está pendiente.
 
@@ -233,6 +237,18 @@ nx build ticket-service
 nx build assignment-service
 nx build notification-service
 ```
+
+Cada app se empaqueta con `@nx/webpack` (`apps/<app>/webpack.config.js`): el bundle `dist/apps/<app>/main.js` ya
+resuelve los alias de TypeScript (`@app/*`, `@<app>/*`) e incluye las libs del workspace; las dependencias de
+`node_modules` quedan externas (el build genera además `dist/apps/<app>/package.json` en `auth-service`).
+Ejecutar un servicio construido, desde la raíz del repo (para que resuelva `node_modules`):
+
+```bash
+nx build ticket-service
+node dist/apps/ticket-service/main.js
+```
+
+Sin PostgreSQL/Kafka levantados (`npm run infra:up`), el servicio arranca Nest y falla sólo al conectarse a ellos.
 
 ## 🧪 Testing
 

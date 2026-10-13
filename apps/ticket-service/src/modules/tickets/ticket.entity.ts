@@ -42,10 +42,10 @@ export class Ticket extends BaseEntity {
   @Column({ name: 'estimated_hours', type: 'float', nullable: true })
   estimatedHours: number | null;
 
-  @Column({ name: 'sprint_id', nullable: true })
+  @Column({ name: 'sprint_id', type: 'varchar', nullable: true })
   sprintId: string | null;
 
-  @Column({ name: 'parent_ticket_id', nullable: true })
+  @Column({ name: 'parent_ticket_id', type: 'varchar', nullable: true })
   parentTicketId: string | null;
 
   @ManyToOne(() => Project, (project) => project.tickets, { onDelete: 'CASCADE' })

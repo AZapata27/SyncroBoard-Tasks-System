@@ -1,4 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { OutboxEvent } from '@app/common';
+import { User } from '@auth/modules/users/user.entity';
 
 export const getDatabaseConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -7,7 +9,8 @@ export const getDatabaseConfig = (): TypeOrmModuleOptions => ({
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'syncro_auth_db',
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  // Explicit list: the app is bundled with webpack, so a glob over __dirname finds no entity files.
+  entities: [User, OutboxEvent],
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',

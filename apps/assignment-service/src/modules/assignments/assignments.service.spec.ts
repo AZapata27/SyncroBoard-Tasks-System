@@ -1,7 +1,14 @@
 import { ConflictException, Logger, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { KafkaService, OutboxEvent, OutboxService, OutboxStatus } from '@app/common';
+import {
+  DEFAULT_OUTBOX_OPTIONS,
+  KafkaService,
+  OUTBOX_OPTIONS,
+  OutboxEvent,
+  OutboxService,
+  OutboxStatus,
+} from '@app/common';
 import { EVENT_TYPES, KAFKA_TOPICS } from '@app/contracts';
 import { AssignmentsService } from './assignments.service';
 import { Assignment } from './assignment.entity';
@@ -17,6 +24,14 @@ const buildAssignment = (overrides: Partial<Assignment> = {}): Assignment =>
     updatedAt: new Date('2026-10-01T00:00:00Z'),
     ...overrides,
   }) as Assignment;
+
+interface ClaimQueryBuilder {
+  update: jest.Mock;
+  set: jest.Mock;
+  where: jest.Mock;
+  andWhere: jest.Mock;
+  execute: jest.Mock;
+}
 
 describe('AssignmentsService', () => {
   let service: AssignmentsService;
@@ -55,6 +70,35 @@ describe('AssignmentsService', () => {
       return event;
     }),
     find: jest.fn(async () => outboxTable.filter((e) => e.status === OutboxStatus.PENDING)),
+    update: jest.fn(async (criteria: { id?: string }, partial: Partial<OutboxEvent>) => {
+      const row = outboxTable.find((e) => e.id === criteria.id);
+      if (row) {
+        Object.assign(row, partial);
+      }
+      return { affected: row ? 1 : 0 };
+    }),
+    // Claim UPDATE (PENDING -> PROCESSING) issued by the relay before publishing.
+    createQueryBuilder: jest.fn(() => {
+      let id: string | undefined;
+      const qb: ClaimQueryBuilder = {
+        update: jest.fn(() => qb),
+        set: jest.fn(() => qb),
+        where: jest.fn((_sql: string, params?: { id?: string }) => {
+          id = params?.id;
+          return qb;
+        }),
+        andWhere: jest.fn(() => qb),
+        execute: jest.fn(async () => {
+          const row = outboxTable.find((e) => e.id === id && e.status === OutboxStatus.PENDING);
+          if (!row) {
+            return { affected: 0 };
+          }
+          row.status = OutboxStatus.PROCESSING;
+          return { affected: 1 };
+        }),
+      };
+      return qb;
+    }),
   };
   const kafkaService = { emit: jest.fn().mockResolvedValue(undefined) };
 
@@ -70,6 +114,7 @@ describe('AssignmentsService', () => {
         { provide: getRepositoryToken(Assignment), useValue: assignmentRepository },
         { provide: getRepositoryToken(OutboxEvent), useValue: outboxRepository },
         { provide: KafkaService, useValue: kafkaService },
+        { provide: OUTBOX_OPTIONS, useValue: DEFAULT_OUTBOX_OPTIONS },
       ],
     }).compile();
 

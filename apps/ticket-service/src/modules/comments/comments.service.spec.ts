@@ -1,8 +1,8 @@
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { OutboxService } from '@app/common';
-import { EVENT_TYPES, KAFKA_TOPICS } from '@app/contracts';
+import { EVENT_TYPES, KAFKA_TOPICS, UserRole } from '@app/contracts';
 import { CommentsService } from './comments.service';
 import { Comment } from './comment.entity';
 
@@ -83,19 +83,45 @@ describe('CommentsService', () => {
     expect(result.map((c) => c.id)).toEqual(['comment-1', 'comment-2']);
   });
 
-  it('removes an existing comment', async () => {
+  it('lets the author delete their own comment', async () => {
     const comment = buildComment();
     repository.findOne.mockResolvedValue(comment);
 
-    await service.delete('comment-1', 'user-1');
+    await service.delete('comment-1', { userId: 'user-1', role: UserRole.DEVELOPER });
 
     expect(repository.remove).toHaveBeenCalledWith(comment);
   });
 
+  it('lets an ADMIN delete a comment written by someone else', async () => {
+    const comment = buildComment({ authorId: 'user-1' });
+    repository.findOne.mockResolvedValue(comment);
+
+    await service.delete('comment-1', { userId: 'admin-1', role: UserRole.ADMIN });
+
+    expect(repository.remove).toHaveBeenCalledWith(comment);
+  });
+
+  it.each([
+    ['a developer', { userId: 'user-2', role: UserRole.DEVELOPER }],
+    ['a project manager', { userId: 'user-2', role: UserRole.PROJECT_MANAGER }],
+    ['a requester without role', { userId: 'user-2' }],
+    ['a requester without identity', { userId: undefined as unknown as string }],
+  ])(
+    'rejects with ForbiddenException when %s tries to delete a comment of another user',
+    async (_who, requester) => {
+      repository.findOne.mockResolvedValue(buildComment({ authorId: 'user-1' }));
+
+      await expect(service.delete('comment-1', requester)).rejects.toThrow(ForbiddenException);
+      expect(repository.remove).not.toHaveBeenCalled();
+    },
+  );
+
   it('throws NotFoundException when deleting an unknown comment', async () => {
     repository.findOne.mockResolvedValue(null);
 
-    await expect(service.delete('missing', 'user-1')).rejects.toThrow(NotFoundException);
+    await expect(service.delete('missing', { userId: 'user-1' })).rejects.toThrow(
+      NotFoundException,
+    );
     expect(repository.remove).not.toHaveBeenCalled();
   });
 });

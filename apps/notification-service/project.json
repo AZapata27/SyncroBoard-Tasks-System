@@ -5,15 +5,20 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/js:swc",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/apps/notification-service",
         "main": "apps/notification-service/src/main.ts",
         "tsConfig": "apps/notification-service/tsconfig.app.json",
         "assets": ["apps/notification-service/src/assets"],
-        "swcrc": ".swcrc",
-        "skipTypeCheck": true
+        "webpackConfig": "apps/notification-service/webpack.config.js",
+        "skipTypeChecking": true,
+        "optimization": false,
+        "outputHashing": "none",
+        "sourceMap": true
       }
     },
     "typecheck": {

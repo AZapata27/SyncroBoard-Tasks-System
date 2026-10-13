@@ -43,4 +43,8 @@ export class OutboxEvent extends BaseEntity {
 
   @Column({ name: 'processed_at', nullable: true, type: 'timestamp' })
   processedAt: Date | null;
+
+  /** Earliest time the relay may retry a failed publish (exponential backoff). Null = right away. */
+  @Column({ name: 'next_attempt_at', nullable: true, type: 'timestamp' })
+  nextAttemptAt: Date | null;
 }
