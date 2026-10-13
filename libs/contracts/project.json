@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/contracts/src",
   "projectType": "library",
+  "tags": ["type:library", "scope:shared"],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
@@ -16,6 +17,5 @@
         "passWithNoTests": true
       }
     }
-  },
-  "tags": ["type:library", "scope:shared"]
+  }
 }

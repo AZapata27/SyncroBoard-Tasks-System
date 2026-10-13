@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project.json",
   "sourceRoot": "apps/gateway/src",
   "projectType": "application",
+  "tags": ["type:app", "scope:backend"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",
@@ -42,6 +43,5 @@
         "passWithNoTests": true
       }
     }
-  },
-  "tags": ["type:app", "scope:backend"]
+  }
 }
